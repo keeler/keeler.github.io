@@ -7,9 +7,28 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>&amp;copy; &lt;a href=&#34;https://github.com/keeler&#34;&gt;Keeler Russell&lt;/a&gt; 2019</copyright>
+    <lastBuildDate>Sun, 03 Feb 2019 19:34:55 -0800</lastBuildDate>
     
 	<atom:link href="https://keeler.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Anova</title>
+      <link>https://keeler.github.io/tags/anova/</link>
+      <pubDate>Sun, 03 Feb 2019 19:34:55 -0800</pubDate>
+      
+      <guid>https://keeler.github.io/tags/anova/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>R</title>
+      <link>https://keeler.github.io/tags/r/</link>
+      <pubDate>Sun, 03 Feb 2019 19:34:55 -0800</pubDate>
+      
+      <guid>https://keeler.github.io/tags/r/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>
