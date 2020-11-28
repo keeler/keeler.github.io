@@ -89,9 +89,35 @@
     <div class="content">
       <p>The weighted mean has an analogue for variance, closely related to <a href="https://en.wikipedia.org/wiki/One-way_analysis_of_variance">one-way ANOVA</a>.</p>
 <h1 id="background">Background</h1>
-<p>Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households for each country.</p>
-<p>You could compute a weighted mean to recover the grand mean household income as if you had calculated it from the raw, unaggregated sample observations.</p>
-<p>I wondered, does the grand variance have a &ldquo;weighted variance&rdquo; analogue to the weighted mean? That is, given only summarized data, how could you recover the grand variance of the unaggregated sample?</p>
+<p>Consider this datset, derived by taking the mean sepal length and count for each species in R&rsquo;s built-in <code>iris</code> dataset<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Species</th>
+<th style="text-align:right">Mean.Sepal.Length</th>
+<th style="text-align:right">Num.Observations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">setosa</td>
+<td style="text-align:right">5.01</td>
+<td style="text-align:right">50</td>
+</tr>
+<tr>
+<td style="text-align:left">versicolor</td>
+<td style="text-align:right">5.94</td>
+<td style="text-align:right">50</td>
+</tr>
+<tr>
+<td style="text-align:left">virginica</td>
+<td style="text-align:right">6.59</td>
+<td style="text-align:right">50</td>
+</tr>
+</tbody>
+</table>
+<p>If you wanted to know the overall (a.k.a. grand) mean sepal length, you could apply a <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean">weighted mean</a> to the summary statistics in that table and find the answer: (5.01 * 50 + 5.94 * 50 + 6.59 * 50) / 150 = 5.85. This is the same result as if you had calculated it from the raw, unaggregated sample observations.</p>
+<p>So there&rsquo;s a weighted mean for the grand mean, but is there an analogous &ldquo;weighted variance&rdquo; calculation for the grand variance? In other words, given only summarized data, how could you recover the grand variance of the unaggregated sample data?</p>
 <p>After some digging I turned up this article, <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">Composite Standard Deviations</a>, which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).</p>
 <p>I&rsquo;d like to take a stab at explaining my understanding of all this and at deriving the equation at hand, both to cement my understanding and to give MathJax a whirl for my first blog post. Also, see the end of the post for a reference snippet of R code.</p>
 <h1 id="the-punchline">The Punchline</h1>
@@ -109,9 +135,9 @@ $$</p>
 <li><code>$\sigma_g^2$</code> = variance of group <code>$g$</code>,</li>
 <li>and <code>$N = \sum_{g=1}^{G} n_g$</code> is the total sample size.</li>
 </ul>
-<p>The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need <code>$n_g \ge 1$</code> for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.</p>
+<p>The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need <code>$n_g \ge 1$</code> for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only. Note that the weighted mean has these same conditions as well.</p>
 <h1 id="how-does-this-relate-to-one-way-anova">How does this relate to one-way ANOVA?</h1>
-<p>With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>:</p>
+<p>With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>:</p>
 <p>$$
 (N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
 $$</p>
@@ -194,7 +220,17 @@ v <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weigh
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p>The <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">article</a> I previously linked to and <a href="https://people.richland.edu/james/lecture/m170/ch13-1wy.html">this page</a> where helpful to me in understanding the connection. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>Here&rsquo;s the code to generate that table:
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
+<span style="color:#900;font-weight:bold">library</span>(datasets)
+<span style="color:#900;font-weight:bold">data</span>(iris)
+
+iris <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">group_by</span>(Species) <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">summarize</span>(Mean.Sepal.Length<span style="font-weight:bold">=</span><span style="color:#900;font-weight:bold">mean</span>(Sepal.Length), Num.Observations<span style="font-weight:bold">=</span><span style="color:#900;font-weight:bold">n</span>())</code></pre></div> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>The <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">article</a> I previously linked to and <a href="https://people.richland.edu/james/lecture/m170/ch13-1wy.html">this page</a> where helpful to me in understanding the connection. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
