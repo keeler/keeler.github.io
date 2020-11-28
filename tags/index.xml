@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Keeler Russell</title>
@@ -7,13 +7,9 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>&amp;copy; &lt;a href=&#34;https://github.com/keeler&#34;&gt;Keeler Russell&lt;/a&gt; 2019</copyright>
-    <lastBuildDate>Sun, 03 Feb 2019 19:34:55 -0800</lastBuildDate>
-    
-	<atom:link href="https://keeler.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 03 Feb 2019 19:34:55 -0800</lastBuildDate><atom:link href="https://keeler.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Anova</title>
+      <title>ANOVA</title>
       <link>https://keeler.github.io/tags/anova/</link>
       <pubDate>Sun, 03 Feb 2019 19:34:55 -0800</pubDate>
       

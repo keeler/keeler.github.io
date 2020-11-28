@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Keeler Russell</title>
@@ -7,18 +7,14 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>&amp;copy; &lt;a href=&#34;https://github.com/keeler&#34;&gt;Keeler Russell&lt;/a&gt; 2019</copyright>
-    <lastBuildDate>Sun, 03 Feb 2019 19:34:55 -0800</lastBuildDate>
-    
-	<atom:link href="https://keeler.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 03 Feb 2019 19:34:55 -0800</lastBuildDate><atom:link href="https://keeler.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Aggregating Variance</title>
       <link>https://keeler.github.io/posts/aggregating-variance/</link>
       <pubDate>Sun, 03 Feb 2019 19:34:55 -0800</pubDate>
       
       <guid>https://keeler.github.io/posts/aggregating-variance/</guid>
-      <description>&lt;p&gt;The weighted mean has an analogue for variance, closely related to &lt;a href=&#34;https://en.wikipedia.org/wiki/One-way_analysis_of_variance&#34; target=&#34;_blank&#34;&gt;one-way ANOVA&lt;/a&gt;.&lt;/p&gt;</description>
+      <description>&lt;p&gt;The weighted mean has an analogue for variance, closely related to &lt;a href=&#34;https://en.wikipedia.org/wiki/One-way_analysis_of_variance&#34;&gt;one-way ANOVA&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
   </channel>

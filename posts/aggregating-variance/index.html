@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="https://keeler.github.io/posts/aggregating-variance/">
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 </head>
@@ -86,30 +87,21 @@
     <h1 class="title">Aggregating Variance</h1>
     
     <div class="content">
-      <p>The weighted mean has an analogue for variance, closely related to <a href="https://en.wikipedia.org/wiki/One-way_analysis_of_variance" target="_blank">one-way ANOVA</a>.</p>
-
+      <p>The weighted mean has an analogue for variance, closely related to <a href="https://en.wikipedia.org/wiki/One-way_analysis_of_variance">one-way ANOVA</a>.</p>
 <h1 id="background">Background</h1>
-
 <p>Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households for each country.</p>
-
 <p>You could compute a weighted mean to recover the grand mean household income as if you had calculated it from the raw, unaggregated sample observations.</p>
-
 <p>I wondered, does the grand variance have a &ldquo;weighted variance&rdquo; analogue to the weighted mean? That is, given only summarized data, how could you recover the grand variance of the unaggregated sample?</p>
-
-<p>After some digging I turned up this article, <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html" target="_blank">Composite Standard Deviations</a>, which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).</p>
-
+<p>After some digging I turned up this article, <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">Composite Standard Deviations</a>, which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).</p>
 <p>I&rsquo;d like to take a stab at explaining my understanding of all this and at deriving the equation at hand, both to cement my understanding and to give MathJax a whirl for my first blog post. Also, see the end of the post for a reference snippet of R code.</p>
-
 <h1 id="the-punchline">The Punchline</h1>
-
-<p>Here&rsquo;s the equation for the grand variance in terms of group summary statistics:
-<code>$$
+<p>Here&rsquo;s the equation for the grand variance in terms of group summary statistics:</p>
+<p>$$
 \begin{align}
 \sigma^2 = \frac{1}{N-1}\sum_{g=1}^{G} \big[(n_g - 1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big]
 \end{align}
-$$</code>
-Where</p>
-
+$$</p>
+<p>Where</p>
 <ul>
 <li><code>$G$</code> is the number of groups,</li>
 <li><code>$n_g$</code> = cardinality (count of observartions) of group <code>$g \in \{1, 2,\ ...\ , G - 1, G\}$</code>,</li>
@@ -117,115 +109,101 @@ Where</p>
 <li><code>$\sigma_g^2$</code> = variance of group <code>$g$</code>,</li>
 <li>and <code>$N = \sum_{g=1}^{G} n_g$</code> is the total sample size.</li>
 </ul>
-
 <p>The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need <code>$n_g \ge 1$</code> for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.</p>
-
 <h1 id="how-does-this-relate-to-one-way-anova">How does this relate to one-way ANOVA?</h1>
-
-<p>With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA<sup class="footnote-ref" id="fnref:1"><a href="#fn:1">1</a></sup>:
-<code>$$
+<p>With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>:</p>
+<p>$$
 (N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
-$$</code></p>
-
+$$</p>
 <ul>
 <li><code>$\sum (n_g - 1)\sigma_g^2$</code> is ANOVA&rsquo;s &ldquo;within-group&rdquo; (&ldquo;error&rdquo;, &ldquo;residual&rdquo;, &hellip;) sum of squares term with <code>$N-G$</code> degrees of freedom.</li>
 <li><code>$\sum n_g(\mu_g - \mu)^2$</code> is ANOVA&rsquo;s &ldquo;between-group&rdquo; (&ldquo;treatment&rdquo;, &ldquo;model&rdquo;, &hellip;) sum of squares term with <code>$G-1$</code> degrees of freedom.</li>
 <li>Multiply <code>$\sigma^2$</code> by the total <code>$N-1 = (N - G) + (G - 1)$</code> degrees of freedom to get the &ldquo;total sum of squares&rdquo; of ANOVA, the sum total of the squared deviations from the grand mean.</li>
 </ul>
-
 <p>So, you can think of <code>$\sum (n_g - 1)\sigma_g^2$</code> as the total variability within groups, <code>$\sum n_g(\mu_g - \mu)^2$</code> as the total variability between groups, and the grand variance <code>$\sigma^2$</code> combines them.</p>
-
-<p>Note that the equation follows directly from the defintion of variance (see derivation below), so ANOVA&rsquo;s assumptions like normality and identical population variances do not apply. Performing ANOVA requires these assumptions for the <a href="https://en.wikipedia.org/wiki/F-test" target="_blank">F-test</a> it ultimately boils down to, but aggregating variance does not.</p>
-
+<p>Note that the equation follows directly from the defintion of variance (see derivation below), so ANOVA&rsquo;s assumptions like normality and identical population variances do not apply. Performing ANOVA requires these assumptions for the <a href="https://en.wikipedia.org/wiki/F-test">F-test</a> it ultimately boils down to, but aggregating variance does not.</p>
 <h1 id="derivation">Derivation</h1>
-
-<p>Suppose we have a sample of <code>$N &gt;= 1$</code> observations/measurements <code>$x_1, x_2,\ ...\ , x_N$</code> of some phenomenon. Let <code>$x_i$</code> be the <code>$i$</code><sup>th</sup> observation where <code>$1 \le i \le N$</code>.</p>
-
-<p>Then the grand mean <code>$\mu$</code> and grand variance <code>$\sigma^2$</code> for the sample are given by:
-<code>$$
+<p>Suppose we have a sample of <code>$N &gt;= 1$</code> observations/measurements <code>$x_1, x_2,\ ...\ , x_N$</code> of some phenomenon. Let <code>$x_i$</code> be the <code>$i$</code><!-- raw HTML omitted -->th<!-- raw HTML omitted --> observation where <code>$1 \le i \le N$</code>.</p>
+<p>Then the grand mean <code>$\mu$</code> and grand variance <code>$\sigma^2$</code> for the sample are given by:</p>
+<p>$$
 \begin{align}
-\mu &amp;= \frac{1}{N} \sum_{i=1}^{N} x_i \\
+\mu &amp;= \frac{1}{N} \sum_{i=1}^{N} x_i \\<br>
 \sigma^2 &amp;= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2
 \end{align}
-$$</code>
-Let <code>$G$</code> be the number of groups, and <code>$1 \le G \le N$</code>. Assign exactly one group label <code>$g \in \{1, 2,\ ...\ , G - 1, G\}$</code> to each observation <code>$x_i$</code> such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.</p>
-
-<p>Let <code>$x_{g,k}$</code> be the <code>$k$</code><sup>th</sup> point in group <code>$g$</code> (order does not matter), and let <code>$n_g$</code> be the number of observations <code>$x_i$</code> in group <code>$g$</code>. We have essentially renamed the observations since there is a bijection between the original observations <code>$x_i$</code> and relabelled observations <code>$x_{g,k}$</code>. Hence, <code>$N = \sum_{g=1}^{G} n_g$</code> and for all <code>$g$</code> we have <code>$n_g \ge 1$</code>.</p>
-
-<p>The group mean mean <code>$\mu_g$</code> and group variance <code>$\sigma_g^2$</code> for group <code>$g$</code> are given by
-<code>$$
+$$</p>
+<p>Let <code>$G$</code> be the number of groups, and <code>$1 \le G \le N$</code>. Assign exactly one group label <code>$g \in \{1, 2,\ ...\ , G - 1, G\}$</code> to each observation <code>$x_i$</code> such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.</p>
+<p>Let <code>$x_{g,k}$</code> be the <code>$k$</code><!-- raw HTML omitted -->th<!-- raw HTML omitted --> point in group <code>$g$</code> (order does not matter), and let <code>$n_g$</code> be the number of observations <code>$x_i$</code> in group <code>$g$</code>. We have essentially renamed the observations since there is a bijection between the original observations <code>$x_i$</code> and relabelled observations <code>$x_{g,k}$</code>. Hence, <code>$N = \sum_{g=1}^{G} n_g$</code> and for all <code>$g$</code> we have <code>$n_g \ge 1$</code>.</p>
+<p>The group mean mean <code>$\mu_g$</code> and group variance <code>$\sigma_g^2$</code> for group <code>$g$</code> are given by</p>
+<p>$$
 \begin{align}
-\mu_g &amp;= \frac{1}{n_g} \sum_{k=1}^{n_g} x_{g,k} \\
+\mu_g &amp;= \frac{1}{n_g} \sum_{k=1}^{n_g} x_{g,k} \\<br>
 \sigma_g^2 &amp;= \frac{1}{n_g-1} \sum_{k=1}^{n_g} (x_{g,k} - \mu_g)^2
 \end{align}
-$$</code>
-We can express the grand mean <code>$\mu$</code> using a weighted mean on the <code>$\mu_g$</code> with <code>$n_g$</code> as the weights:
-<code>$$
+$$</p>
+<p>We can express the grand mean <code>$\mu$</code> using a weighted mean on the <code>$\mu_g$</code> with <code>$n_g$</code> as the weights:</p>
+<p>$$
 \begin{align}
 \mu = \frac{1}{N} \sum_{g=1}^{G} \mu_g n_g = \frac{\sum_{g=1}^{G} \mu_g n_g}{\sum_{g=1}^{G} n_g}
 \end{align}
-$$</code>
-Now we can start from definition of the grand variance (3) and through a series of substitutions reach the equation for the grand variance in terms of the group summary statistics (1).
-<code>$$
+$$</p>
+<p>Now we can start from definition of the grand variance (3) and through a series of substitutions reach the equation for the grand variance in terms of the group summary statistics (1).</p>
+<p>$$
 \require{cancel}
 \begin{align}
-\sigma^2 &amp;= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2 \\
-         &amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu)^2 \\
-         &amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu_g + \mu_g - \mu)^2 \\
-         &amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g) + (\mu_g - \mu)\big]^2 \\
-         &amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g)^2 + (x_{g,k} - \mu_g)(\mu_g - \mu) + (\mu_g - \mu)^2\big] \\
-         &amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)(\mu_g - \mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\
-         &amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k}\mu_g - x_{g,k}\mu - \mu_g^2 + \mu_g\mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\
-         &amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big( (n_g \mu_g)\mu_g - (n_g \mu_g)\mu - n_g\mu_g^2 + (n_g)\mu_g\mu \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big(\cancel{n_g\mu_g^2} - \cancel{n_g\mu_g\mu} - \cancel{n_g\mu_g^2} + \cancel{n_g\mu_g\mu} \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &amp;= \frac{1}{N-1} \sum_{g=1}^{G}\big[(n_g-1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big] \\
+\sigma^2 &amp;= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu_g + \mu_g - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g) + (\mu_g - \mu)\big]^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g)^2 + (x_{g,k} - \mu_g)(\mu_g - \mu) + (\mu_g - \mu)^2\big] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)(\mu_g - \mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k}\mu_g - x_{g,k}\mu - \mu_g^2 + \mu_g\mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big( (n_g \mu_g)\mu_g - (n_g \mu_g)\mu - n_g\mu_g^2 + (n_g)\mu_g\mu \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big(\cancel{n_g\mu_g^2} - \cancel{n_g\mu_g\mu} - \cancel{n_g\mu_g^2} + \cancel{n_g\mu_g\mu} \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\big[(n_g-1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big] \\<br>
 \end{align}
-$$</code>
-Note that to get from (13) to (14) uses a re-arrangement (5).</p>
-
+$$</p>
+<p>Note that to get from (13) to (14) uses a re-arrangement (5).</p>
 <h1 id="code">Code</h1>
-
 <p>Finally, here&rsquo;s snippet of R code to demonstrate the equation.</p>
-
-<div class="highlight"><pre style="color:#ccc;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#cd00cd">library</span>(dplyr)
+<div class="highlight"><pre style="color:#ccc;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">library(dplyr)
 
 <span style="color:#000080"># Generate 500 points of raw data with random group labels.</span>
 N <span style="color:#39c">&lt;-</span> <span style="color:#cd00cd">500</span>
-dd <span style="color:#39c">&lt;-</span> <span style="color:#00cd00">data.frame</span>(
-  group <span style="color:#39c">=</span> <span style="color:#cdcd00">sample</span>(<span style="color:#cdcd00">LETTERS</span>, size<span style="color:#39c">=</span>N, replace<span style="color:#39c">=</span>T),
+dd <span style="color:#39c">&lt;-</span> data.frame(
+  group <span style="color:#39c">=</span> sample(<span style="color:#cdcd00">LETTERS</span>, size<span style="color:#39c">=</span>N, replace<span style="color:#39c">=</span>T),
   observation <span style="color:#39c">=</span> rgamma(N, shape<span style="color:#39c">=</span><span style="color:#cd00cd">1.1</span>, rate<span style="color:#39c">=</span><span style="color:#cd00cd">0.001</span>)
 )
 
 <span style="color:#000080"># Aggregate the data to mean, variance, and size per group.</span>
 agg <span style="color:#39c">&lt;-</span> dd <span style="color:#39c">%&gt;%</span>
   group_by(group) <span style="color:#39c">%&gt;%</span>
-  summarize(m <span style="color:#39c">=</span> <span style="color:#cdcd00">mean</span>(observation), <span style="color:#000080"># Group mean</span>
+  summarize(m <span style="color:#39c">=</span> mean(observation), <span style="color:#000080"># Group mean</span>
             n <span style="color:#39c">=</span> n(),               <span style="color:#000080"># Group size</span>
             v <span style="color:#39c">=</span> var(observation))  <span style="color:#000080"># Group variance</span>
 
 <span style="color:#000080"># Grand mean is same as weighted mean of group means.</span>
-<span style="color:#cdcd00">print</span>(<span style="color:#cdcd00">paste</span>(<span style="color:#cd0000">&#34;Grand mean from raw observations:&#34;</span>, <span style="color:#cdcd00">mean</span>(dd<span style="color:#39c">$</span>observation)))
-<span style="color:#cdcd00">print</span>(<span style="color:#cdcd00">paste</span>(<span style="color:#cd0000">&#34;Grand mean from aggregated data:&#34;</span>, <span style="color:#cdcd00">sum</span>(agg<span style="color:#39c">$</span>m <span style="color:#39c">*</span> agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> <span style="color:#cdcd00">sum</span>(agg<span style="color:#39c">$</span>n)))
+print(paste(<span style="color:#cd0000">&#34;Grand mean from raw observations:&#34;</span>, mean(dd<span style="color:#39c">$</span>observation)))
+print(paste(<span style="color:#cd0000">&#34;Grand mean from aggregated data:&#34;</span>, sum(agg<span style="color:#39c">$</span>m <span style="color:#39c">*</span> agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> sum(agg<span style="color:#39c">$</span>n)))
 
 <span style="color:#000080"># Grand variance can also be recovered from summary stats!</span>
-v <span style="color:#39c">&lt;-</span> <span style="color:#cdcd00">sum</span>((agg<span style="color:#39c">$</span>n <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>v <span style="color:#39c">+</span> agg<span style="color:#39c">$</span>n<span style="color:#39c">*</span>(agg<span style="color:#39c">$</span>m <span style="color:#39c">-</span> <span style="color:#cdcd00">sum</span>(agg<span style="color:#39c">$</span>m<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> <span style="color:#cdcd00">sum</span>(agg<span style="color:#39c">$</span>n))<span style="color:#39c">^</span><span style="color:#cd00cd">2</span>) <span style="color:#39c">/</span> (<span style="color:#cdcd00">sum</span>(agg<span style="color:#39c">$</span>n) <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)
-<span style="color:#cdcd00">print</span>(<span style="color:#cdcd00">paste</span>(<span style="color:#cd0000">&#34;Grand variance from raw observations:&#34;</span>, var(dd<span style="color:#39c">$</span>observation)))
-<span style="color:#cdcd00">print</span>(<span style="color:#cdcd00">paste</span>(<span style="color:#cd0000">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></div>
-<div class="footnotes">
-
-<hr />
-
+v <span style="color:#39c">&lt;-</span> sum((agg<span style="color:#39c">$</span>n <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>v <span style="color:#39c">+</span> agg<span style="color:#39c">$</span>n<span style="color:#39c">*</span>(agg<span style="color:#39c">$</span>m <span style="color:#39c">-</span> sum(agg<span style="color:#39c">$</span>m<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> sum(agg<span style="color:#39c">$</span>n))^2) <span style="color:#39c">/</span> (sum(agg<span style="color:#39c">$</span>n) <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)
+print(paste(<span style="color:#cd0000">&#34;Grand variance from raw observations:&#34;</span>, var(dd<span style="color:#39c">$</span>observation)))
+print(paste(<span style="color:#cd0000">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></div>
+<section class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li id="fn:1">The <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html" target="_blank">article</a> I previously linked to and <a href="https://people.richland.edu/james/lecture/m170/ch13-1wy.html" target="_blank">this page</a> where helpful to me in understanding the connection.
- <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+<li id="fn:1" role="doc-endnote">
+<p>The <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">article</a> I previously linked to and <a href="https://people.richland.edu/james/lecture/m170/ch13-1wy.html">this page</a> where helpful to me in understanding the connection. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
-</div>
+</section>
       
     </div>
     
   </div>
 </section>
+
 
 
 <section class="section">
@@ -240,7 +218,7 @@ v <span style="color:#39c">&lt;-</span> <span style="color:#cdcd00">sum</span>((
 </body>
 </html>
 <script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   MathJax.Hub.Config({
   tex2jax: {
     inlineMath: [['$','$'], ['\\(','\\)']],
