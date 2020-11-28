@@ -166,30 +166,30 @@ $$</p>
 <p>Note that to get from (13) to (14) uses a re-arrangement (5).</p>
 <h1 id="code">Code</h1>
 <p>Finally, here&rsquo;s snippet of R code to demonstrate the equation.</p>
-<div class="highlight"><pre style="color:#ccc;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">library(dplyr)
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
 
-<span style="color:#000080"># Generate 500 points of raw data with random group labels.</span>
-N <span style="color:#39c">&lt;-</span> <span style="color:#cd00cd">500</span>
-dd <span style="color:#39c">&lt;-</span> data.frame(
-  group <span style="color:#39c">=</span> sample(<span style="color:#cdcd00">LETTERS</span>, size<span style="color:#39c">=</span>N, replace<span style="color:#39c">=</span>T),
-  observation <span style="color:#39c">=</span> rgamma(N, shape<span style="color:#39c">=</span><span style="color:#cd00cd">1.1</span>, rate<span style="color:#39c">=</span><span style="color:#cd00cd">0.001</span>)
+<span style="color:#998;font-style:italic"># Generate 500 points of raw data with random group labels.</span>
+N <span style="font-weight:bold">&lt;-</span> <span style="color:#099">500</span>
+dd <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weight:bold">data.frame</span>(
+  group <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">sample</span>(<span style="font-weight:bold">LETTERS</span>, size<span style="font-weight:bold">=</span>N, replace<span style="font-weight:bold">=</span>T),
+  observation <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">rgamma</span>(N, shape<span style="font-weight:bold">=</span><span style="color:#099">1.1</span>, rate<span style="font-weight:bold">=</span><span style="color:#099">0.001</span>)
 )
 
-<span style="color:#000080"># Aggregate the data to mean, variance, and size per group.</span>
-agg <span style="color:#39c">&lt;-</span> dd <span style="color:#39c">%&gt;%</span>
-  group_by(group) <span style="color:#39c">%&gt;%</span>
-  summarize(m <span style="color:#39c">=</span> mean(observation), <span style="color:#000080"># Group mean</span>
-            n <span style="color:#39c">=</span> n(),               <span style="color:#000080"># Group size</span>
-            v <span style="color:#39c">=</span> var(observation))  <span style="color:#000080"># Group variance</span>
+<span style="color:#998;font-style:italic"># Aggregate the data to mean, variance, and size per group.</span>
+agg <span style="font-weight:bold">&lt;-</span> dd <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">group_by</span>(group) <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">summarize</span>(m <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">mean</span>(observation), <span style="color:#998;font-style:italic"># Group mean</span>
+            n <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">n</span>(),               <span style="color:#998;font-style:italic"># Group size</span>
+            v <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">var</span>(observation))  <span style="color:#998;font-style:italic"># Group variance</span>
 
-<span style="color:#000080"># Grand mean is same as weighted mean of group means.</span>
-print(paste(<span style="color:#cd0000">&#34;Grand mean from raw observations:&#34;</span>, mean(dd<span style="color:#39c">$</span>observation)))
-print(paste(<span style="color:#cd0000">&#34;Grand mean from aggregated data:&#34;</span>, sum(agg<span style="color:#39c">$</span>m <span style="color:#39c">*</span> agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> sum(agg<span style="color:#39c">$</span>n)))
+<span style="color:#998;font-style:italic"># Grand mean is same as weighted mean of group means.</span>
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand mean from raw observations:&#34;</span>, <span style="color:#900;font-weight:bold">mean</span>(dd<span style="font-weight:bold">$</span>observation)))
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand mean from aggregated data:&#34;</span>, <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>m <span style="font-weight:bold">*</span> agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">/</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n)))
 
-<span style="color:#000080"># Grand variance can also be recovered from summary stats!</span>
-v <span style="color:#39c">&lt;-</span> sum((agg<span style="color:#39c">$</span>n <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>v <span style="color:#39c">+</span> agg<span style="color:#39c">$</span>n<span style="color:#39c">*</span>(agg<span style="color:#39c">$</span>m <span style="color:#39c">-</span> sum(agg<span style="color:#39c">$</span>m<span style="color:#39c">*</span>agg<span style="color:#39c">$</span>n) <span style="color:#39c">/</span> sum(agg<span style="color:#39c">$</span>n))^2) <span style="color:#39c">/</span> (sum(agg<span style="color:#39c">$</span>n) <span style="color:#39c">-</span> <span style="color:#cd00cd">1</span>)
-print(paste(<span style="color:#cd0000">&#34;Grand variance from raw observations:&#34;</span>, var(dd<span style="color:#39c">$</span>observation)))
-print(paste(<span style="color:#cd0000">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></div>
+<span style="color:#998;font-style:italic"># Grand variance can also be recovered from summary stats!</span>
+v <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weight:bold">sum</span>((agg<span style="font-weight:bold">$</span>n <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>v <span style="font-weight:bold">+</span> agg<span style="font-weight:bold">$</span>n<span style="font-weight:bold">*</span>(agg<span style="font-weight:bold">$</span>m <span style="font-weight:bold">-</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>m<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">/</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n))^2) <span style="font-weight:bold">/</span> (<span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from raw observations:&#34;</span>, <span style="color:#900;font-weight:bold">var</span>(dd<span style="font-weight:bold">$</span>observation)))
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></div>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
@@ -198,6 +198,9 @@ print(paste(<span style="color:#cd0000">&#34;Grand variance from aggregated data
 </li>
 </ol>
 </section>
+      
+      <div class="related">
+</div>
       
     </div>
     
@@ -209,6 +212,8 @@ print(paste(<span style="color:#cd0000">&#34;Grand variance from aggregated data
 <section class="section">
   <div class="container has-text-centered">
     <p>&copy; <a href="https://github.com/keeler">Keeler Russell</a> 2019</p>
+    
+      <p>Powered by <a href="https://gohugo.io/">Hugo</a> &amp; <a href="https://github.com/ribice/kiss">Kiss</a>.</p>
     
   </div>
 </section>
