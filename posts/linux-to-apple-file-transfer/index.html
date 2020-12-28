@@ -126,7 +126,7 @@ Serving HTTP on 0.0.0.0 port 54321 (http://0.0.0.0:54321/) ...
 <li>Download all the files you want. You can play them from &ldquo;Downloads&rdquo; on the iPhone.</li>
 </ol>
 <h3 id="automating-it">Automating It</h3>
-<p>I made a small bash script for this which I added to my $PATH for convenience. Now I can just <code>cd</code> to the directory I want to share and run <code>serve.sh</code>.</p>
+<p>I made a small bash script for this which I added to my $PATH for convenience.</p>
 <div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
@@ -143,26 +143,32 @@ Serving HTTP on 0.0.0.0 port 54321 (http://0.0.0.0:54321/) ...
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
 <pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#999;font-weight:bold">#!/usr/bin/env bash
-</span><span style="color:#999;font-weight:bold"></span>
-<span style="color:#008080">PORT</span><span style="font-weight:bold">=</span><span style="color:#b84">${</span><span style="color:#008080">1</span><span style="font-weight:bold">:-</span><span style="color:#008080">54321</span><span style="color:#b84">}</span>
+</span><span style="color:#999;font-weight:bold"></span><span style="color:#998;font-style:italic"># Open an HTTP server from the given directory.</span>
+
+<span style="color:#008080">DIR</span><span style="font-weight:bold">=</span><span style="color:#b84">${</span><span style="color:#008080">1</span><span style="font-weight:bold">:-$(</span><span style="color:#999">pwd</span><span style="font-weight:bold">)</span><span style="color:#b84">}</span>
+<span style="color:#008080">PORT</span><span style="font-weight:bold">=</span><span style="color:#b84">${</span><span style="color:#008080">2</span><span style="font-weight:bold">:-</span><span style="color:#008080">54321</span><span style="color:#b84">}</span>
+
 <span style="color:#008080">IP</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span>hostname -I | awk <span style="color:#b84">&#39;{print $1}&#39;</span><span style="font-weight:bold">)</span>
 <span style="color:#008080">HOST</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;http://</span><span style="color:#008080">$IP</span><span style="color:#b84">:</span><span style="color:#008080">$PORT</span><span style="color:#b84">&#34;</span>
 
-<span style="color:#008080">MSG</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;Serving &#39;</span><span style="font-weight:bold">$(</span><span style="color:#999">pwd</span><span style="font-weight:bold">)</span><span style="color:#b84">&#39; at </span><span style="color:#008080">$HOST</span><span style="color:#b84">...&#34;</span>
+<span style="color:#008080">MSG</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;Serving &#39;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#39; at </span><span style="color:#008080">$HOST</span><span style="color:#b84">...&#34;</span>
 <span style="color:#008080">LEN</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span><span style="color:#999">echo</span> <span style="color:#008080">$MSG</span> | wc -m<span style="font-weight:bold">)</span>
 <span style="color:#008080">SEP</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span><span style="color:#999">printf</span> %<span style="color:#b84">${</span><span style="color:#008080">LEN</span><span style="color:#b84">}</span>s | tr <span style="color:#b84">&#39; &#39;</span> <span style="color:#b84">&#39;#&#39;</span><span style="font-weight:bold">)</span>
 <span style="color:#999">echo</span> <span style="color:#008080">$SEP</span>
 <span style="color:#999">echo</span> <span style="color:#008080">$MSG</span>
 <span style="color:#999">echo</span> <span style="color:#008080">$SEP</span>
 
-python3 -m http.server <span style="color:#008080">$PORT</span></code></pre></td></tr></table>
+<span style="font-weight:bold">(</span> <span style="color:#999">cd</span> <span style="color:#b84">&#34;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#34;</span> <span style="font-weight:bold">&amp;&amp;</span> python3 -m http.server <span style="color:#008080">$PORT</span> <span style="font-weight:bold">)</span></code></pre></td></tr></table>
 </div>
 </div>
-<p>Here it is in action:</p>
-<pre><code>$ cd ~/audiobooks &amp;&amp; serve.sh
+<p>Here it is in action. Omitting the directory serves whatever the current directory is.</p>
+<pre><code>$ serve.sh ~/audiobooks
 ################################################################
 Serving '/home/keeler/audiobooks' at http://10.0.0.129:54321...
 ################################################################
