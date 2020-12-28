@@ -88,9 +88,13 @@
     
     <div class="content">
       <p>My laptop&rsquo;s disk was mysteriously filling up: turns out it was docker.</p>
-<p>These days disks on personal computers are so large that I usually just don&rsquo;t notice how full mine is or not because it typically doesn&rsquo;t impact my everyday work. That being said, I do try to keep tabs on what processes are running, including how much data they download or write to disk. In this situation, though, I had literally no idea what was consuming all that space, so I took a look at all of root.</p>
+<h2 id="what-happened">What Happened?</h2>
+<p>When your disk fills up, things get weird and your computer starts to whine.
+I was getting alerts saying my disk was nearly full, and ignored them until I literally could not work anymore: Git started to break down with the error <code>fatal: Unable to write new index file</code>.
+Thus blocked, and having no idea what could be consuming my laptop&rsquo;s disk space, I ran this command to find out:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo du -h / | sort --human-numeric-sort --reverse | head</code></pre></div>
-<p>Fortunately for me, the search was a short one. The <code>du</code> command immediately fingered the culprit: docker volumes. In my case it was me not cleaning up after myself when using docker day-in-and-day out.</p>
+<p>After a short while the results came back and fortunately the culprit was obvious: docker volumes.
+I hadn&rsquo;t been cleaning up after myself when using docker all day every day.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">205G  /
 195G  /var
 157G  /var/lib
@@ -98,16 +102,22 @@
 100G  /var/lib/docker/volumes
 53G   /var/lib/docker/overlay2
 ...</code></pre></div>
-<p>Docker volumes are marvelously handy but over time consume a lot of disk and don&rsquo;t necessarily get cleaned up when you remove images or containers. With a little <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">peek at the docs</a> I found I could run this command to clear out all that docker volume cruft.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker system prune -af --volumes</code></pre></div>
-<p>Note that this command will also delete images, too! In my case I have a decently-fast internet connection and regularly pull new images anyway, so that didn&rsquo;t bother me so much.</p>
-<p>However, that command only does the cleanup once, merely extending the clock on what is still a ticking time-bomb of disk-devouring. So, my simple fix was to add a cronjob to run this cleanup command once a week. In other words, I ran <code>crontab -e</code> and add the following lines (with the correct shell and email, of course).</p>
+<h2 id="how-i-solved-it">How I Solved It</h2>
+<p>Docker volumes will over time consume a lot of disk and don&rsquo;t necessarily get cleaned up when you remove images or containers.
+With a little <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">peek at the docs</a> I found I could run this command to clear out all that docker volume cruft:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker system prune -f --volumes</code></pre></div>
+<p>However, that command only does the cleanup once, merely extending the clock on a ticking time-bomb of disk-devouring.
+So, my simple fix was to add a cronjob to run this cleanup command once a week.
+In other words, I ran <code>crontab -e</code> and add the following lines (with the correct email, of course).</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#008080">SHELL</span><span style="font-weight:bold">=</span>/bin/bash
 <span style="color:#008080">MAILTO</span><span style="font-weight:bold">=</span>myname@email.com
 
 <span style="color:#998;font-style:italic"># Prune unused docker cruft once a week.</span>
 <span style="color:#099">0</span> <span style="color:#099">2</span> * * <span style="color:#099">1</span> docker system prune -af --volumes</code></pre></div>
-<p>So, cron does the cleanup and sends me an email at around <a href="https://crontab.guru/#0_2_*_*_1">2AM every Monday</a> detailing what it cleaned up. It has been a few months and this solution has worked brilliantly.</p>
+<p>So, cron does the cleanup and sends me an email at around <a href="https://crontab.guru/#0_2_*_*_1">2AM every Monday</a> detailing what it cleaned up.
+Note that I added the <code>-a</code> option which also deletes images not tied to at least one container.
+In my case I have a decently-fast internet connection and regularly pull new images anyway, so I actually prefer this to keep the cruft to the absolute minimum.
+It has been a few months and this solution has worked brilliantly.</p>
       
       <div class="related">
 </div>

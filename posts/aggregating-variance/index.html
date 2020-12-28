@@ -192,7 +192,35 @@ $$</p>
 <p>Note that to get from (13) to (14) uses a re-arrangement (5).</p>
 <h1 id="code">Code</h1>
 <p>Finally, here&rsquo;s snippet of R code to demonstrate the equation.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
 
 <span style="color:#998;font-style:italic"># Generate 500 points of raw data with random group labels.</span>
 N <span style="font-weight:bold">&lt;-</span> <span style="color:#099">500</span>
@@ -215,7 +243,9 @@ agg <span style="font-weight:bold">&lt;-</span> dd <span style="font-weight:bold
 <span style="color:#998;font-style:italic"># Grand variance can also be recovered from summary stats!</span>
 v <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weight:bold">sum</span>((agg<span style="font-weight:bold">$</span>n <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>v <span style="font-weight:bold">+</span> agg<span style="font-weight:bold">$</span>n<span style="font-weight:bold">*</span>(agg<span style="font-weight:bold">$</span>m <span style="font-weight:bold">-</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>m<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">/</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n))^2) <span style="font-weight:bold">/</span> (<span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)
 <span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from raw observations:&#34;</span>, <span style="color:#900;font-weight:bold">var</span>(dd<span style="font-weight:bold">$</span>observation)))
-<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></div>
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></td></tr></table>
+</div>
+</div>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
