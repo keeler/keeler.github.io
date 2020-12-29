@@ -10,37 +10,37 @@
     <lastBuildDate>Tue, 29 Dec 2020 02:12:02 +0000</lastBuildDate><atom:link href="https://keeler.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Concatenating MP3 Files</title>
-      <link>https://keeler.github.io/posts/concatenating-mp3-files/</link>
+      <link>https://keeler.github.io/concatenating-mp3-files/</link>
       <pubDate>Tue, 29 Dec 2020 02:12:02 +0000</pubDate>
       
-      <guid>https://keeler.github.io/posts/concatenating-mp3-files/</guid>
+      <guid>https://keeler.github.io/concatenating-mp3-files/</guid>
       <description>&lt;p&gt;Smoosh a bunch of MP3 files into one for easier copying around.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Linux to Apple File Transfer</title>
-      <link>https://keeler.github.io/posts/linux-to-apple-file-transfer/</link>
+      <link>https://keeler.github.io/linux-to-apple-file-transfer/</link>
       <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
       
-      <guid>https://keeler.github.io/posts/linux-to-apple-file-transfer/</guid>
+      <guid>https://keeler.github.io/linux-to-apple-file-transfer/</guid>
       <description>&lt;p&gt;A workaround to transfer files from Linux devices to Apple devices without iTunes or wine.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Docker: Disk Devourer</title>
-      <link>https://keeler.github.io/posts/docker-disk-devourer/</link>
+      <link>https://keeler.github.io/docker-disk-devourer/</link>
       <pubDate>Sun, 29 Nov 2020 17:53:33 +0000</pubDate>
       
-      <guid>https://keeler.github.io/posts/docker-disk-devourer/</guid>
+      <guid>https://keeler.github.io/docker-disk-devourer/</guid>
       <description>&lt;p&gt;My laptop&amp;rsquo;s disk was mysteriously filling up: turns out it was docker.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Aggregating Variance</title>
-      <link>https://keeler.github.io/posts/aggregating-variance/</link>
+      <link>https://keeler.github.io/aggregating-variance/</link>
       <pubDate>Sun, 03 Feb 2019 19:34:55 -0800</pubDate>
       
-      <guid>https://keeler.github.io/posts/aggregating-variance/</guid>
+      <guid>https://keeler.github.io/aggregating-variance/</guid>
       <description>&lt;p&gt;The weighted mean has an analogue for variance, closely related to &lt;a href=&#34;https://en.wikipedia.org/wiki/One-way_analysis_of_variance&#34;&gt;one-way ANOVA&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     

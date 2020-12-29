@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Aggregating Variance | Keeler Russell</title>
+
+
+
+<link rel="stylesheet" href="/css/style.css"/><link rel='stylesheet' href='https://keeler.github.io/css/custom.css'><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="https://keeler.github.io/aggregating-variance/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="https://keeler.github.io">
+          <h1 class="title is-4">Keeler Russell</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/keeler'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="email" href='mailto:keeler.russell@gmail.com'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/">
+          <h2 class="title is-5 nav-item-custom">Blog</h2>
+        </a><a class="nav-item" href="/about">
+          <h2 class="title is-5 nav-item-custom">About</h2>
+        </a><a class="nav-item" href="/tags">
+          <h2 class="title is-5 nav-item-custom">Tags</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/anova">#ANOVA</a>
+
+
+
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/r">#R</a>
+  
+
+
+      
+    </div>
+    <h2 class="subtitle is-6">February 3, 2019</h2>
+    <h1 class="title">Aggregating Variance</h1>
+    
+    <div class="content">
+      <p>The weighted mean has an analogue for variance, closely related to <a href="https://en.wikipedia.org/wiki/One-way_analysis_of_variance">one-way ANOVA</a>.</p>
+<h1 id="background">Background</h1>
+<p>Consider this datset, derived by taking the mean sepal length and count for each species in R&rsquo;s built-in <code>iris</code> dataset<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Species</th>
+<th style="text-align:right">Mean.Sepal.Length</th>
+<th style="text-align:right">Num.Observations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">setosa</td>
+<td style="text-align:right">5.01</td>
+<td style="text-align:right">50</td>
+</tr>
+<tr>
+<td style="text-align:left">versicolor</td>
+<td style="text-align:right">5.94</td>
+<td style="text-align:right">50</td>
+</tr>
+<tr>
+<td style="text-align:left">virginica</td>
+<td style="text-align:right">6.59</td>
+<td style="text-align:right">50</td>
+</tr>
+</tbody>
+</table>
+<p>If you wanted to know the overall (a.k.a. grand) mean sepal length, you could apply a <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean">weighted mean</a> to the summary statistics in that table and find the answer: (5.01 * 50 + 5.94 * 50 + 6.59 * 50) / 150 = 5.85. This is the same result as if you had calculated it from the raw, unaggregated sample observations.</p>
+<p>So there&rsquo;s a weighted mean for the grand mean, but is there an analogous &ldquo;weighted variance&rdquo; calculation for the grand variance? In other words, given only summarized data, how could you recover the grand variance of the unaggregated sample data?</p>
+<p>After some digging I turned up this article, <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">Composite Standard Deviations</a>, which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).</p>
+<p>I&rsquo;d like to take a stab at explaining my understanding of all this and at deriving the equation at hand, both to cement my understanding and to give MathJax a whirl for my first blog post. Also, see the end of the post for a reference snippet of R code.</p>
+<h1 id="the-punchline">The Punchline</h1>
+<p>Here&rsquo;s the equation for the grand variance in terms of group summary statistics:</p>
+<p>$$
+\begin{align}
+\sigma^2 = \frac{1}{N-1}\sum_{g=1}^{G} \big[(n_g - 1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big]
+\end{align}
+$$</p>
+<p>Where</p>
+<ul>
+<li><code>$G$</code> is the number of groups,</li>
+<li><code>$n_g$</code> = cardinality (count of observartions) of group <code>$g \in \{1, 2,\ ...\ , G - 1, G\}$</code>,</li>
+<li><code>$\mu_g$</code> = mean of group <code>$g$</code>,</li>
+<li><code>$\sigma_g^2$</code> = variance of group <code>$g$</code>,</li>
+<li>and <code>$N = \sum_{g=1}^{G} n_g$</code> is the total sample size.</li>
+</ul>
+<p>The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need <code>$n_g \ge 1$</code> for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only. Note that the weighted mean has these same conditions as well.</p>
+<h1 id="how-does-this-relate-to-one-way-anova">How does this relate to one-way ANOVA?</h1>
+<p>With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>:</p>
+<p>$$
+(N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
+$$</p>
+<ul>
+<li><code>$\sum (n_g - 1)\sigma_g^2$</code> is ANOVA&rsquo;s &ldquo;within-group&rdquo; (&ldquo;error&rdquo;, &ldquo;residual&rdquo;, &hellip;) sum of squares term with <code>$N-G$</code> degrees of freedom.</li>
+<li><code>$\sum n_g(\mu_g - \mu)^2$</code> is ANOVA&rsquo;s &ldquo;between-group&rdquo; (&ldquo;treatment&rdquo;, &ldquo;model&rdquo;, &hellip;) sum of squares term with <code>$G-1$</code> degrees of freedom.</li>
+<li>Multiply <code>$\sigma^2$</code> by the total <code>$N-1 = (N - G) + (G - 1)$</code> degrees of freedom to get the &ldquo;total sum of squares&rdquo; of ANOVA, the sum total of the squared deviations from the grand mean.</li>
+</ul>
+<p>So, you can think of <code>$\sum (n_g - 1)\sigma_g^2$</code> as the total variability within groups, <code>$\sum n_g(\mu_g - \mu)^2$</code> as the total variability between groups, and the grand variance <code>$\sigma^2$</code> combines them.</p>
+<p>Note that the equation follows directly from the defintion of variance (see derivation below), so ANOVA&rsquo;s assumptions like normality and identical population variances do not apply. Performing ANOVA requires these assumptions for the <a href="https://en.wikipedia.org/wiki/F-test">F-test</a> it ultimately boils down to, but aggregating variance does not.</p>
+<h1 id="derivation">Derivation</h1>
+<p>Suppose we have a sample of <code>$N &gt;= 1$</code> observations/measurements <code>$x_1, x_2,\ ...\ , x_N$</code> of some phenomenon. Let <code>$x_i$</code> be the <code>$i$</code><!-- raw HTML omitted -->th<!-- raw HTML omitted --> observation where <code>$1 \le i \le N$</code>.</p>
+<p>Then the grand mean <code>$\mu$</code> and grand variance <code>$\sigma^2$</code> for the sample are given by:</p>
+<p>$$
+\begin{align}
+\mu &amp;= \frac{1}{N} \sum_{i=1}^{N} x_i \\<br>
+\sigma^2 &amp;= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2
+\end{align}
+$$</p>
+<p>Let <code>$G$</code> be the number of groups, and <code>$1 \le G \le N$</code>. Assign exactly one group label <code>$g \in \{1, 2,\ ...\ , G - 1, G\}$</code> to each observation <code>$x_i$</code> such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.</p>
+<p>Let <code>$x_{g,k}$</code> be the <code>$k$</code><!-- raw HTML omitted -->th<!-- raw HTML omitted --> point in group <code>$g$</code> (order does not matter), and let <code>$n_g$</code> be the number of observations <code>$x_i$</code> in group <code>$g$</code>. We have essentially renamed the observations since there is a bijection between the original observations <code>$x_i$</code> and relabelled observations <code>$x_{g,k}$</code>. Hence, <code>$N = \sum_{g=1}^{G} n_g$</code> and for all <code>$g$</code> we have <code>$n_g \ge 1$</code>.</p>
+<p>The group mean mean <code>$\mu_g$</code> and group variance <code>$\sigma_g^2$</code> for group <code>$g$</code> are given by</p>
+<p>$$
+\begin{align}
+\mu_g &amp;= \frac{1}{n_g} \sum_{k=1}^{n_g} x_{g,k} \\<br>
+\sigma_g^2 &amp;= \frac{1}{n_g-1} \sum_{k=1}^{n_g} (x_{g,k} - \mu_g)^2
+\end{align}
+$$</p>
+<p>We can express the grand mean <code>$\mu$</code> using a weighted mean on the <code>$\mu_g$</code> with <code>$n_g$</code> as the weights:</p>
+<p>$$
+\begin{align}
+\mu = \frac{1}{N} \sum_{g=1}^{G} \mu_g n_g = \frac{\sum_{g=1}^{G} \mu_g n_g}{\sum_{g=1}^{G} n_g}
+\end{align}
+$$</p>
+<p>Now we can start from definition of the grand variance (3) and through a series of substitutions reach the equation for the grand variance in terms of the group summary statistics (1).</p>
+<p>$$
+\require{cancel}
+\begin{align}
+\sigma^2 &amp;= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu_g + \mu_g - \mu)^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g) + (\mu_g - \mu)\big]^2 \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g)^2 + (x_{g,k} - \mu_g)(\mu_g - \mu) + (\mu_g - \mu)^2\big] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)(\mu_g - \mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k}\mu_g - x_{g,k}\mu - \mu_g^2 + \mu_g\mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big( (n_g \mu_g)\mu_g - (n_g \mu_g)\mu - n_g\mu_g^2 + (n_g)\mu_g\mu \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big(\cancel{n_g\mu_g^2} - \cancel{n_g\mu_g\mu} - \cancel{n_g\mu_g^2} + \cancel{n_g\mu_g\mu} \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\<br>
+&amp;= \frac{1}{N-1} \sum_{g=1}^{G}\big[(n_g-1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big] \\<br>
+\end{align}
+$$</p>
+<p>Note that to get from (13) to (14) uses a re-arrangement (5).</p>
+<h1 id="code">Code</h1>
+<p>Finally, here&rsquo;s snippet of R code to demonstrate the equation.</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
+
+<span style="color:#998;font-style:italic"># Generate 500 points of raw data with random group labels.</span>
+N <span style="font-weight:bold">&lt;-</span> <span style="color:#099">500</span>
+dd <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weight:bold">data.frame</span>(
+  group <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">sample</span>(<span style="font-weight:bold">LETTERS</span>, size<span style="font-weight:bold">=</span>N, replace<span style="font-weight:bold">=</span>T),
+  observation <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">rgamma</span>(N, shape<span style="font-weight:bold">=</span><span style="color:#099">1.1</span>, rate<span style="font-weight:bold">=</span><span style="color:#099">0.001</span>)
+)
+
+<span style="color:#998;font-style:italic"># Aggregate the data to mean, variance, and size per group.</span>
+agg <span style="font-weight:bold">&lt;-</span> dd <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">group_by</span>(group) <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">summarize</span>(m <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">mean</span>(observation), <span style="color:#998;font-style:italic"># Group mean</span>
+            n <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">n</span>(),               <span style="color:#998;font-style:italic"># Group size</span>
+            v <span style="font-weight:bold">=</span> <span style="color:#900;font-weight:bold">var</span>(observation))  <span style="color:#998;font-style:italic"># Group variance</span>
+
+<span style="color:#998;font-style:italic"># Grand mean is same as weighted mean of group means.</span>
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand mean from raw observations:&#34;</span>, <span style="color:#900;font-weight:bold">mean</span>(dd<span style="font-weight:bold">$</span>observation)))
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand mean from aggregated data:&#34;</span>, <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>m <span style="font-weight:bold">*</span> agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">/</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n)))
+
+<span style="color:#998;font-style:italic"># Grand variance can also be recovered from summary stats!</span>
+v <span style="font-weight:bold">&lt;-</span> <span style="color:#900;font-weight:bold">sum</span>((agg<span style="font-weight:bold">$</span>n <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>v <span style="font-weight:bold">+</span> agg<span style="font-weight:bold">$</span>n<span style="font-weight:bold">*</span>(agg<span style="font-weight:bold">$</span>m <span style="font-weight:bold">-</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>m<span style="font-weight:bold">*</span>agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">/</span> <span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n))^2) <span style="font-weight:bold">/</span> (<span style="color:#900;font-weight:bold">sum</span>(agg<span style="font-weight:bold">$</span>n) <span style="font-weight:bold">-</span> <span style="color:#099">1</span>)
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from raw observations:&#34;</span>, <span style="color:#900;font-weight:bold">var</span>(dd<span style="font-weight:bold">$</span>observation)))
+<span style="color:#900;font-weight:bold">print</span>(<span style="color:#900;font-weight:bold">paste</span>(<span style="color:#b84">&#34;Grand variance from aggregated data:&#34;</span>, v))</code></pre></td></tr></table>
+</div>
+</div>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>Here&rsquo;s the code to generate that table:
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#900;font-weight:bold">library</span>(dplyr)
+<span style="color:#900;font-weight:bold">library</span>(datasets)
+<span style="color:#900;font-weight:bold">data</span>(iris)
+
+iris <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">group_by</span>(Species) <span style="font-weight:bold">%&gt;%</span>
+  <span style="color:#900;font-weight:bold">summarize</span>(Mean.Sepal.Length<span style="font-weight:bold">=</span><span style="color:#900;font-weight:bold">mean</span>(Sepal.Length), Num.Observations<span style="font-weight:bold">=</span><span style="color:#900;font-weight:bold">n</span>())</code></pre></div> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>The <a href="http://www.burtonsys.com/climate/composite_standard_deviations.html">article</a> I previously linked to and <a href="https://people.richland.edu/james/lecture/m170/ch13-1wy.html">this page</a> where helpful to me in understanding the connection. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+      
+      <div class="related">
+</div>
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p>&copy; <a href="https://github.com/keeler">Keeler Russell</a> 2019</p>
+    
+      <p>Powered by <a href="https://gohugo.io/">Hugo</a> &amp; <a href="https://github.com/ribice/kiss">Kiss</a>.</p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+

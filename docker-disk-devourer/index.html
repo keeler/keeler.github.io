@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>iPhone | Keeler Russell</title>
+<title>Docker: Disk Devourer | Keeler Russell</title>
 
 
 
@@ -13,7 +13,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-<link rel="canonical" href="https://keeler.github.io/tags/iphone/">
+<link rel="canonical" href="https://keeler.github.io/docker-disk-devourer/">
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 </head>
@@ -69,58 +69,65 @@
 
 <section class="section">
   <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/docker">#docker</a>
+
+
+
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/cronjob">#cronjob</a>
+  
+
+
+      
+    </div>
+    <h2 class="subtitle is-6">November 29, 2020</h2>
+    <h1 class="title">Docker: Disk Devourer</h1>
     
-    
-    <article>
-      <div class="subtitle tags is-6 is-pulled-right">
-        
-        
-<a class="subtitle is-6" href="/tags/linux">#Linux</a>
+    <div class="content">
+      <p>My laptop&rsquo;s disk was mysteriously filling up: turns out it was docker.</p>
+<h2 id="what-happened">What Happened?</h2>
+<p>When your disk fills up, things get weird and your computer starts to whine.
+I was getting alerts saying my disk was nearly full, and ignored them until I literally could not work anymore: Git started to break down with the error <code>fatal: Unable to write new index file</code>.
+Thus blocked, and having no idea what could be consuming my laptop&rsquo;s disk space, I ran this command to find out:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo du -h / | sort --human-numeric-sort --reverse | head</code></pre></div>
+<p>After a short while the results came back and fortunately the culprit was obvious: docker volumes.
+I hadn&rsquo;t been cleaning up after myself when using docker all day every day.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">205G  /
+195G  /var
+157G  /var/lib
+153G  /var/lib/docker
+100G  /var/lib/docker/volumes
+53G   /var/lib/docker/overlay2
+...</code></pre></div>
+<h2 id="how-i-solved-it">How I Solved It</h2>
+<p>Docker volumes will over time consume a lot of disk and don&rsquo;t necessarily get cleaned up when you remove images or containers.
+With a little <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">peek at the docs</a> I found I could run this command to clear out all that docker volume cruft:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker system prune -f --volumes</code></pre></div>
+<p>However, that command only does the cleanup once, merely extending the clock on a ticking time-bomb of disk-devouring.
+So, my simple fix was to add a cronjob to run this cleanup command once a week.
+In other words, I ran <code>crontab -e</code> and add the following lines (with the correct email, of course).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#008080">SHELL</span><span style="font-weight:bold">=</span>/bin/bash
+<span style="color:#008080">MAILTO</span><span style="font-weight:bold">=</span>myname@email.com
 
-
-
-  
-  &nbsp;<a class="subtitle is-6" href="/tags/iphone">#iPhone</a>
-  
-  &nbsp;<a class="subtitle is-6" href="/tags/workaround">#Workaround</a>
-  
-  &nbsp;<a class="subtitle is-6" href="/tags/bash">#Bash</a>
-  
-
-
-        
-      </div>
-      <h2 class="subtitle is-6 date">December 28, 2020</h2>
-      <h1 class="title"><a href="https://keeler.github.io/linux-to-apple-file-transfer/">Linux to Apple File Transfer</a></h1>
-      <div class="content">
-        A workaround to transfer files from Linux devices to Apple devices without iTunes or wine.
-
-        
-        <a class="button is-link" href="https://keeler.github.io/linux-to-apple-file-transfer/" style="height:28px">
-          Read more
-        </a>
-        
-      </div>
-    </article>
+<span style="color:#998;font-style:italic"># Prune unused docker cruft once a week.</span>
+<span style="color:#099">0</span> <span style="color:#099">2</span> * * <span style="color:#099">1</span> docker system prune -af --volumes</code></pre></div>
+<p>So, cron does the cleanup and sends me an email at around <a href="https://crontab.guru/#0_2_*_*_1">2AM every Monday</a> detailing what it cleaned up.
+Note that I added the <code>-a</code> option which also deletes images not tied to at least one container.
+In my case I have a decently-fast internet connection and regularly pull new images anyway, so I actually prefer this to keep the cruft to the absolute minimum.
+It has been a few months and this solution has worked brilliantly.</p>
+      
+      <div class="related">
+</div>
+      
+    </div>
     
   </div>
 </section>
-<section class="section">
-  <div class="container">
-    <nav class="level is-mobile">
-      <div class="level-left">
-        <div class="level-item">
-          
-        </div>
-      </div>
-      <div class="level-right is-marginless">
-        <div class="level-item">
-          
-        </div>
-      </div>
-    </nav>
-  </div>
-</section>
+
+
 
 <section class="section">
   <div class="container has-text-centered">

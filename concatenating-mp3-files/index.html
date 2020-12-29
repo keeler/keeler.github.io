@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Concatenating MP3 Files | Keeler Russell</title>
+
+
+
+<link rel="stylesheet" href="/css/style.css"/><link rel='stylesheet' href='https://keeler.github.io/css/custom.css'><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="https://keeler.github.io/concatenating-mp3-files/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="https://keeler.github.io">
+          <h1 class="title is-4">Keeler Russell</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/keeler'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="email" href='mailto:keeler.russell@gmail.com'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/">
+          <h2 class="title is-5 nav-item-custom">Blog</h2>
+        </a><a class="nav-item" href="/about">
+          <h2 class="title is-5 nav-item-custom">About</h2>
+        </a><a class="nav-item" href="/tags">
+          <h2 class="title is-5 nav-item-custom">Tags</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/linux">#Linux</a>
+
+
+
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/mp3">#MP3</a>
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/ffmpeg">#ffmpeg</a>
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/bash">#Bash</a>
+  
+
+
+      
+    </div>
+    <h2 class="subtitle is-6">December 29, 2020</h2>
+    <h1 class="title">Concatenating MP3 Files</h1>
+    
+    <div class="content">
+      <p>Smoosh a bunch of MP3 files into one for easier copying around.</p>
+<h2 id="background">Background</h2>
+<p>I <a href="/linux-to-apple-file-transfer/">previously wrote about</a> how I get audiobook MP3 files from my Linux machine onto my iPhone without iTunes.
+However, using that workaround is <strong>extremely tedious</strong> when there are dozens of MP3 files to copy manually.
+So, with the help of <a href="https://askubuntu.com/questions/20507/concatenating-several-mp3-files-into-one-mp3">this AskUbuntu thread</a> I put together a Bash script to concatenate a directory full of MP3 files into a single MP3 file for the sake of minimizing the number of files I need to download through Safari.</p>
+<p>As you may have guessed, it&rsquo;s not as simple as doing <code>cat *.mp3 &gt; output.mp3</code> because:</p>
+<ol>
+<li>MP3 files have metadata at the beginning and end of the file which shouldn&rsquo;t be in the middle of a well-formatted output MP3. Naively concatenating them together will result in garbage data in the middle of the concatenated file.</li>
+<li>Using a glob this way is naive about the order in which the mp3 files should get concatenated together. Since in my case these are the parts of a book, sequence matters a lot.</li>
+</ol>
+<h2 id="how-to-use-the-script">How to Use the Script</h2>
+<p>I named this bash script <code>cat_mp3s.sh</code> and put it in my <code>$PATH</code> for convenience.</p>
+<p>Here&rsquo;s an example of how I use it.
+The <code>-i</code> option points to the directory of MP3s, and the <code>-o</code> option determines what the output filename will be.
+Before actually concatenating the files it shows what order they&rsquo;ll be concatenated in and let&rsquo;s you confirm that&rsquo;s the order you want.
+If not, you&rsquo;ll need to rename the files so they sort appropriately.</p>
+<pre><code>$ cat_mp3s.sh -i &quot;~/audiobooks/Neuromancer -o Neuromancer.mp3
+Found 12 MP3 files in '/home/keeler/audiobooks/Neuromancer'
+They will be concatenated in this order:
+########################################
+1-12 Neuromancer - William Gibson.mp3
+2-12 Neuromancer - William Gibson.mp3
+3-12 Neuromancer - William Gibson.mp3
+4-12 Neuromancer - William Gibson.mp3
+5-12 Neuromancer - William Gibson.mp3
+6-12 Neuromancer - William Gibson.mp3
+7-12 Neuromancer - William Gibson.mp3
+8-12 Neuromancer - William Gibson.mp3
+9-12 Neuromancer - William Gibson.mp3
+10-12 Neuromancer - William Gibson.mp3
+11-12 Neuromancer - William Gibson.mp3
+12-12 Neuromancer - William Gibson.mp3
+Is this order OK? (y/n) y
+...........................
+...lots of ffmpeg output...
+...........................
+Wrote 'Neuromancer.mp3' in '/home/krussell/audiobooks/Neuromancer'
+</code></pre><h3 id="the-script">The Script</h3>
+<p>Here&rsquo;s the script in its entirety. Most of it is helper stuff like options, checks, a confirm prompt, etc.</p>
+<p>The main pieces of the script are the following (which are highlighted in the script below):</p>
+<ol>
+<li>A <code>find</code> + <code>sort</code> used to discover and correctly order the mp3 files.</li>
+<li>An invocation of <code>ffmpeg</code> used to concatenate the mp3s.</li>
+</ol>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span></span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
+</span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
+</span></span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">69
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#999;font-weight:bold">#!/usr/bin/env bash
+</span><span style="color:#999;font-weight:bold"></span><span style="color:#998;font-style:italic"># Concatenate mp3 files in a directory into a single mp3.</span>
+
+<span style="color:#998;font-style:italic"># Default options</span>
+<span style="color:#008080">DIR</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span><span style="color:#999">pwd</span><span style="font-weight:bold">)</span>
+<span style="color:#008080">OUT_FILE</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;output.mp3&#34;</span>
+
+<span style="color:#999">help</span> <span style="font-weight:bold">()</span> <span style="font-weight:bold">{</span>
+  <span style="color:#008080">self</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span>basename <span style="color:#008080">$0</span><span style="font-weight:bold">)</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;Concatenate mp3 files in a directory into a single mp3.&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;Usage: </span><span style="color:#008080">$self</span><span style="color:#b84"> -i /path/to/mp3s -o output_name.mp3&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;  -i, --input-dir    Path to directory with mp3s in it.&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;                     Defaults to current directory.&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;  -o, --output-file  Name of concatenated mp3 file.&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;                     Must have .mp3 extension.&#34;</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;                     Defaults to &#39;output.mp3&#39;.&#34;</span>
+<span style="font-weight:bold">}</span>
+
+<span style="color:#998;font-style:italic"># Parse command line options.</span>
+<span style="font-weight:bold">while</span> <span style="font-weight:bold">[[</span> <span style="color:#008080">$#</span> -gt <span style="color:#099">0</span> <span style="font-weight:bold">]]</span>  <span style="color:#998;font-style:italic"># While there are more than 0 arguments to parse</span>
+<span style="font-weight:bold">do</span>
+  <span style="color:#008080">OPTION</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;</span><span style="color:#008080">$1</span><span style="color:#b84">&#34;</span>
+  <span style="color:#008080">VALUE</span><span style="font-weight:bold">=</span><span style="color:#b84">&#34;</span><span style="color:#008080">$2</span><span style="color:#b84">&#34;</span>
+
+  <span style="font-weight:bold">case</span> <span style="color:#008080">$OPTION</span> in
+    -h|--help<span style="font-weight:bold">)</span>
+      help; <span style="color:#999">exit</span> <span style="color:#099">1</span>
+    ;;
+    -i|--input-dir<span style="font-weight:bold">)</span>
+      <span style="color:#008080">DIR</span><span style="font-weight:bold">=</span><span style="color:#008080">$VALUE</span>; shift; <span style="color:#999">shift</span>
+    ;;
+    -o|--output-file<span style="font-weight:bold">)</span>
+      <span style="color:#008080">OUT_FILE</span><span style="font-weight:bold">=</span><span style="color:#008080">$VALUE</span>; shift; <span style="color:#999">shift</span>
+    ;;
+    *<span style="font-weight:bold">)</span>
+      <span style="color:#999">echo</span> <span style="color:#b84">&#34;Unrecognized option &#39;</span><span style="color:#008080">$OPTION</span><span style="color:#b84">&#39;&#34;</span>; help; <span style="color:#999">exit</span> <span style="color:#099">1</span>
+    ;;
+  <span style="font-weight:bold">esac</span>
+<span style="font-weight:bold">done</span>
+
+<span style="color:#998;font-style:italic"># Check output file has proper extension.</span>
+<span style="font-weight:bold">if</span> <span style="font-weight:bold">[[</span> <span style="color:#b84">&#34;</span><span style="color:#b84">${</span><span style="color:#008080">OUT_FILE</span>: -4<span style="color:#b84">}</span><span style="color:#b84">&#34;</span> !<span style="font-weight:bold">=</span> <span style="color:#b84">&#34;.mp3&#34;</span> <span style="font-weight:bold">]]</span>
+<span style="font-weight:bold">then</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;Output filename &#39;</span><span style="color:#008080">$OUT_FILE</span><span style="color:#b84">&#39; must have extension &#39;.mp3&#39;&#34;</span>
+  <span style="color:#999">exit</span> <span style="color:#099">2</span>
+<span style="font-weight:bold">fi</span>
+
+<span style="color:#998;font-style:italic"># Find and sort mp3 files.</span>
+<span style="display:block;width:100%;background-color:#e5e5e5"><span style="color:#008080">FILES</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span>find <span style="color:#b84">&#34;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#34;</span> -maxdepth <span style="color:#099">1</span> -iname <span style="color:#b84">&#39;*.mp3&#39;</span> <span style="color:#b84">\
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="color:#b84"></span>  | sort -V <span style="color:#b84">\
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="color:#b84"></span>  | tr <span style="color:#b84">&#39;\n&#39;</span> <span style="color:#b84">&#39;|&#39;</span> <span style="color:#b84">\
+</span></span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="color:#b84"></span>  | sed -E <span style="color:#b84">&#39;s/\|$//&#39;</span>
+</span><span style="display:block;width:100%;background-color:#e5e5e5"><span style="font-weight:bold">)</span>
+</span><span style="color:#008080">NUM_FILES</span><span style="font-weight:bold">=</span><span style="font-weight:bold">$(</span><span style="color:#999">echo</span> <span style="color:#008080">$FILES</span> | tr <span style="color:#b84">&#39;|&#39;</span> <span style="color:#b84">&#39;\n&#39;</span> | wc -l<span style="font-weight:bold">)</span>
+
+<span style="color:#999">echo</span> <span style="color:#b84">&#34;Found </span><span style="color:#008080">$NUM_FILES</span><span style="color:#b84"> MP3 files in &#39;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#39;&#34;</span>
+<span style="color:#999">echo</span> <span style="color:#b84">&#34;They will be concatenated in this order:&#34;</span>
+<span style="color:#999">echo</span> <span style="color:#b84">&#34;########################################&#34;</span>
+<span style="color:#999">echo</span> <span style="color:#008080">$FILES</span> | tr <span style="color:#b84">&#39;|&#39;</span> <span style="color:#b84">&#39;\n&#39;</span> | xargs -I% basename %
+
+<span style="color:#998;font-style:italic"># Confirm before concatenating.</span>
+<span style="color:#999">read</span> -p <span style="color:#b84">&#34;Is this order OK? (y/n) &#34;</span> -n <span style="color:#099">1</span> -r
+<span style="color:#999">echo</span>
+<span style="font-weight:bold">if</span> <span style="font-weight:bold">[[</span> <span style="color:#008080">$REPLY</span> <span style="font-weight:bold">=</span>~ ^<span style="font-weight:bold">[</span>Yy<span style="font-weight:bold">]</span>$ <span style="font-weight:bold">]]</span>
+<span style="font-weight:bold">then</span>
+  <span style="color:#999">echo</span> <span style="color:#b84">&#34;Concatenating files...&#34;</span>
+<span style="display:block;width:100%;background-color:#e5e5e5">  <span style="font-weight:bold">(</span> <span style="color:#999">cd</span> <span style="color:#b84">&#34;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#34;</span> <span style="font-weight:bold">&amp;&amp;</span> ffmpeg -i <span style="color:#b84">&#34;concat:</span><span style="color:#008080">$FILES</span><span style="color:#b84">&#34;</span> -acodec copy <span style="color:#b84">&#34;</span><span style="color:#008080">$OUT_FILE</span><span style="color:#b84">&#34;</span> <span style="font-weight:bold">)</span>
+</span>  <span style="color:#999">echo</span> <span style="color:#b84">&#34;Wrote &#39;</span><span style="color:#008080">$OUT_FILE</span><span style="color:#b84">&#39; in &#39;</span><span style="color:#008080">$DIR</span><span style="color:#b84">&#39;&#34;</span>
+<span style="font-weight:bold">fi</span></code></pre></td></tr></table>
+</div>
+</div>
+      
+      <div class="related">
+
+<h3>Similar articles:</h3>
+<ul>
+	
+	<li><a href="/linux-to-apple-file-transfer/">Linux to Apple File Transfer</a></li>
+	
+</ul>
+</div>
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p>&copy; <a href="https://github.com/keeler">Keeler Russell</a> 2019</p>
+    
+      <p>Powered by <a href="https://gohugo.io/">Hugo</a> &amp; <a href="https://github.com/ribice/kiss">Kiss</a>.</p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
