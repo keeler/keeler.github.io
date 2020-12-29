@@ -79,10 +79,6 @@
   
   &nbsp;<a class="subtitle is-6" href="/tags/iphone">#iPhone</a>
   
-  &nbsp;<a class="subtitle is-6" href="/tags/apple">#Apple</a>
-  
-  &nbsp;<a class="subtitle is-6" href="/tags/hack">#Hack</a>
-  
   &nbsp;<a class="subtitle is-6" href="/tags/workaround">#Workaround</a>
   
   &nbsp;<a class="subtitle is-6" href="/tags/bash">#Bash</a>
@@ -95,7 +91,7 @@
     <h1 class="title">Linux to Apple File Transfer</h1>
     
     <div class="content">
-      <p>A workaround to transfer files from Linux devices to Apple devices.</p>
+      <p>A workaround to transfer files from Linux devices to Apple devices without iTunes or wine.</p>
 <h2 id="background">Background</h2>
 <p>I wanted to transfer some audiobook mp3s from my laptop to my iPhone.
 Unfortunately for me, simply plugging in the iPhone via USB isn&rsquo;t really an option: this requires iTunes, but my laptop runs Linux and there&rsquo;s no iTunes client for Linux.
@@ -104,7 +100,7 @@ While <code>wine</code> is an option I didn&rsquo;t want to go that route becaus
 <h2 id="the-workaround">The Workaround</h2>
 <p>The workaround is relatively simple:</p>
 <ol>
-<li>Put the laptop and iPhone on the same WiFi network.</li>
+<li>Put the laptop and iPhone on the same network.</li>
 <li>Run a web server on the laptop.</li>
 <li>Navigate to the web server in Safari on the iPhone to download the mp3s.</li>
 </ol>
@@ -112,7 +108,7 @@ While <code>wine</code> is an option I didn&rsquo;t want to go that route becaus
 My WiFi has a decent WPA2 key and I kill the server immediately after I&rsquo;m done transferring files so I&rsquo;m not too worried.</p>
 <h3 id="details">Details</h3>
 <ol>
-<li>Put your computer and iPhone to the same network. For example, connect both to the same WiFi network.</li>
+<li>Put your computer and iPhone on the same network. For example, connect both to the same WiFi network.</li>
 <li>Start an HTTP server in the directory you want to share.
 <pre><code>$ cd ~/audiobooks
 $ python3 -m http.server 54321
@@ -179,13 +175,6 @@ Serving HTTP on 0.0.0.0 port 54321 (http://0.0.0.0:54321/) ...
 </code></pre>
       
       <div class="related">
-
-<h3>Similar articles:</h3>
-<ul>
-	
-	<li><a href="/posts/concatenating-mp3-files/">Concatenating MP3 Files</a></li>
-	
-</ul>
 </div>
       
     </div>

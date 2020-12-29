@@ -7,20 +7,11 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>&amp;copy; &lt;a href=&#34;https://github.com/keeler&#34;&gt;Keeler Russell&lt;/a&gt; 2019</copyright>
-    <lastBuildDate>Mon, 28 Dec 2020 02:12:02 +0000</lastBuildDate><atom:link href="https://keeler.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Apple</title>
-      <link>https://keeler.github.io/tags/apple/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
-      
-      <guid>https://keeler.github.io/tags/apple/</guid>
-      <description></description>
-    </item>
-    
+    <lastBuildDate>Tue, 29 Dec 2020 02:12:02 +0000</lastBuildDate><atom:link href="https://keeler.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Bash</title>
       <link>https://keeler.github.io/tags/bash/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
+      <pubDate>Tue, 29 Dec 2020 02:12:02 +0000</pubDate>
       
       <guid>https://keeler.github.io/tags/bash/</guid>
       <description></description>
@@ -29,18 +20,27 @@
     <item>
       <title>ffmpeg</title>
       <link>https://keeler.github.io/tags/ffmpeg/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
+      <pubDate>Tue, 29 Dec 2020 02:12:02 +0000</pubDate>
       
       <guid>https://keeler.github.io/tags/ffmpeg/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Hack</title>
-      <link>https://keeler.github.io/tags/hack/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
+      <title>Linux</title>
+      <link>https://keeler.github.io/tags/linux/</link>
+      <pubDate>Tue, 29 Dec 2020 02:12:02 +0000</pubDate>
       
-      <guid>https://keeler.github.io/tags/hack/</guid>
+      <guid>https://keeler.github.io/tags/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>MP3</title>
+      <link>https://keeler.github.io/tags/mp3/</link>
+      <pubDate>Tue, 29 Dec 2020 02:12:02 +0000</pubDate>
+      
+      <guid>https://keeler.github.io/tags/mp3/</guid>
       <description></description>
     </item>
     
@@ -50,24 +50,6 @@
       <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
       
       <guid>https://keeler.github.io/tags/iphone/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Linux</title>
-      <link>https://keeler.github.io/tags/linux/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
-      
-      <guid>https://keeler.github.io/tags/linux/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>MP3</title>
-      <link>https://keeler.github.io/tags/mp3/</link>
-      <pubDate>Mon, 28 Dec 2020 02:12:02 +0000</pubDate>
-      
-      <guid>https://keeler.github.io/tags/mp3/</guid>
       <description></description>
     </item>
     
