@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>jaeger on Keeler Russell</title>
+    <link>https://keeler.github.io/tags/jaeger/</link>
+    <description>Recent content in jaeger on Keeler Russell</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>&amp;copy; &lt;a href=&#34;https://github.com/keeler&#34;&gt;Keeler Russell&lt;/a&gt; 2019</copyright>
+    <lastBuildDate>Wed, 06 Jan 2021 07:32:21 +0000</lastBuildDate><atom:link href="https://keeler.github.io/tags/jaeger/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker Build Profiling</title>
+      <link>https://keeler.github.io/docker-build-profiling/</link>
+      <pubDate>Wed, 06 Jan 2021 07:32:21 +0000</pubDate>
+      
+      <guid>https://keeler.github.io/docker-build-profiling/</guid>
+      <description>&lt;p&gt;Figure out why your docker build is slow.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

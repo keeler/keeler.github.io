@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Docker Build Profiling | Keeler Russell</title>
+
+
+
+<link rel="stylesheet" href="/css/style.css"/><link rel='stylesheet' href='https://keeler.github.io/css/custom.css'><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="https://keeler.github.io/docker-build-profiling/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="https://keeler.github.io">
+          <h1 class="title is-4">Keeler Russell</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/keeler'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="email" href='mailto:keeler.russell@gmail.com'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/">
+          <h2 class="title is-5 nav-item-custom">Blog</h2>
+        </a><a class="nav-item" href="/about">
+          <h2 class="title is-5 nav-item-custom">About</h2>
+        </a><a class="nav-item" href="/tags">
+          <h2 class="title is-5 nav-item-custom">Tags</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/docker">#docker</a>
+
+
+
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/jaeger">#jaeger</a>
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/buildkit">#buildkit</a>
+  
+  &nbsp;<a class="subtitle is-6" href="/tags/opentracing">#opentracing</a>
+  
+
+
+      
+    </div>
+    <h2 class="subtitle is-6">January 6, 2021</h2>
+    <h1 class="title">Docker Build Profiling</h1>
+    
+    <div class="content">
+      <p>Figure out why your docker build is slow.</p>
+<h1 id="background">Background</h1>
+<p>I ran into a case where building a docker image was taking too long for my liking.
+However, vanilla docker doesn&rsquo;t give you any good way to profile the build process to figure out exactly what is so slow.</p>
+<p>Buildkit to the rescue!
+<a href="https://github.com/moby/buildkit/pull/255">This buildkit PR</a> added a way to hook up Jaeger to buildkit.
+In other words, with a little bit of setup, you can build a docker image with buildkit and get a nice breakdown (i.e. profile) of the build time.</p>
+<p><img src="/images/posts/docker-build-profiling/jaeger.jpg" alt="Jaeger running locally"></p>
+<h1 id="how-to-do-it">How To Do It</h1>
+<p>First of all,  to do any of this requires <code>buildkitd</code> which is only available on Linux (as of Jan 2021).
+However, I didn&rsquo;t like the fact that I need to run it as root and besides even if I was OK with that I couldn&rsquo;t get it to work, anyway (neither was the rootless mode).
+So instead, I built a custom image based on <a href="https://hub.docker.com/_/docker">docker-in-docker</a> into which I install buildkit.
+As such it may work outside Linux but I haven&rsquo;t tried this so no guarantees.</p>
+<h3 id="general-idea">General Idea</h3>
+<p>The basic idea is to build a custom docker-in-docker image with buildkit installed.
+With that custom image running, then start Jaeger and the buildkit daemon inside that container.
+Then you can repeat these steps iteratively:</p>
+<ol>
+<li>Copy files into the container (Dockerfile + build context)</li>
+<li>Build them with buildkit in the container.</li>
+<li>Outside the container view/extract the profiling information.</li>
+</ol>
+<h3 id="set-up">Set Up</h3>
+<p>Here&rsquo;s the Dockerfile for the custom docker-in-docker image:
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="font-weight:bold">FROM</span><span style="color:#b84"> docker:dind</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">WORKDIR</span><span style="color:#b84"> /workspace</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">ENV</span> <span style="color:#008080">BUILDKIT_VERSION</span><span style="font-weight:bold">=</span><span style="color:#099">0</span>.8.0<span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">ENV</span> <span style="color:#008080">BUILDKIT_ARCHIVE</span><span style="font-weight:bold">=</span>buildkit-v<span style="color:#008080">$BUILDKIT_VERSION</span>.linux-amd64.tar.gz<span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="color:#998;font-style:italic"># Download and install buildkit</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">RUN</span> wget https://github.com/moby/buildkit/releases/download/v<span style="color:#008080">$BUILDKIT_VERSION</span>/<span style="color:#008080">$BUILDKIT_ARCHIVE</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">RUN</span> tar xvzf <span style="color:#008080">$BUILDKIT_ARCHIVE</span> <span style="color:#b84">\
+</span><span style="color:#b84"></span> <span style="font-weight:bold">&amp;&amp;</span> mkdir /bin/buildkit <span style="color:#b84">\
+</span><span style="color:#b84"></span> <span style="font-weight:bold">&amp;&amp;</span> mv ./bin/* /bin/buildkit <span style="color:#b84">\
+</span><span style="color:#b84"></span> <span style="font-weight:bold">&amp;&amp;</span> rm -rf ./bin <span style="color:#008080">$BUILDKIT_ARCHIVE</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="color:#998;font-style:italic"># Set up Jaeger and buildkit daemon to run.</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="color:#998;font-style:italic"># See https://github.com/moby/buildkit/pull/255</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">ENV</span> <span style="color:#008080">JAEGER_IMAGE</span><span style="font-weight:bold">=</span>jaegertracing/all-in-one:latest<span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">ENV</span> <span style="color:#008080">JAEGER_TRACE</span><span style="font-weight:bold">=</span><span style="color:#099">0</span>.0.0.0:6831<span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">RUN</span> <span style="color:#999">printf</span> <span style="color:#b84">&#39;#!/bin/sh\n\
+</span><span style="color:#b84">docker run -d -p6831:6831/udp -p16686:16686 $JAEGER_IMAGE\n\
+</span><span style="color:#b84">/bin/buildkit/buildkitd &amp;&#39;</span><span style="color:#b84">\
+</span><span style="color:#b84"></span>&gt;&gt; init.sh<span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2"></span><span style="font-weight:bold">RUN</span> chmod +x init.sh</code></pre></td></tr></table>
+</div>
+</div></p>
+<p>Save that Dockerfile as <code>Dockerfile-profiler</code>. Now to build it:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker build -t docker-build-profiler -f Dockerfile-profiler .
+</code></pre></div><p>Once the build is complete, start a container with the image:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --name build-profiler -it -d --privileged -p16686:16686 docker-build-profiler
+</code></pre></div><p>The flags are basically the same as are recommended in the docker-in-docker docs, except the opening of port 16686.
+This allows connecting to Jaeger outside of docker to get that sweet, sweet profiling information. 😮</p>
+<p>Now, we need to start Jaeger and the buildkit daemon.
+I built a helper script into the image to do this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker <span style="color:#999">exec</span> -it build-profiler ./init.sh
+</code></pre></div><p>Alternatively you could run:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker <span style="color:#999">exec</span> -it build-profiler docker run -d -p6831:6831/udp -p16686:16686 <span style="color:#008080">$JAEGER_IMAGE</span>
+docker <span style="color:#999">exec</span> -it build-profiler /bin/buildkit/buildkitd &amp;
+</code></pre></div><h3 id="getting-profiling-information">Getting Profiling Information</h3>
+<p>With the setup complete, you can leave the container running and repeat the following steps as much as you want.
+Basically, you&rsquo;ll copy your Docker build context into the container, build your image, and then extract or view auto-generated profiling stats.
+I&rsquo;ve been making a folder in the container per project I&rsquo;m working on.</p>
+<ol>
+<li>Make a folder in the container&rsquo;s <code>/workspace</code> path to build your image in.
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker <span style="color:#999">exec</span> -it build-profiler mkdir demo
+</code></pre></div></li>
+<li>Copy in your Dockerfile and build context.
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker cp Dockerfile build-profiler:/workspace/demo
+docker cp &lt;other files&gt; build-profiler:/workspace/demo
+</code></pre></div></li>
+<li>Build the files with buildkit.
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker <span style="color:#999">exec</span> -it build-profiler /bin/buildkit/buildctl build <span style="color:#b84">\
+</span><span style="color:#b84"></span>    --frontend<span style="font-weight:bold">=</span>dockerfile.v0 <span style="color:#b84">\
+</span><span style="color:#b84"></span>    --local <span style="color:#008080">context</span><span style="font-weight:bold">=</span>demo <span style="color:#b84">\
+</span><span style="color:#b84"></span>    --local <span style="color:#008080">dockerfile</span><span style="font-weight:bold">=</span>demo
+</code></pre></div></li>
+<li>Get the traces from Jaeger. Use the web UI for a visual representation, or use <code>curl</code> for CLI access.
+<ol>
+<li>For the web UI, go to <code>http://localhost:16686</code> in your browser. Choose &ldquo;buildctl&rdquo; in the <code>Service</code> dropdown, click the <code>Find Traces</code> button, and choose the most recent one.</li>
+<li>For curl, you can use the <a href="https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal">REST API</a>. It works but is undocumented as of Jan 2021 and subject to change.
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">curl -s http://localhost:16686/api/traces<span style="color:#b84">\?</span>service<span style="color:#b84">\=</span>buildctl | jq <span style="color:#b84">&#39;.&#39;</span>
+</code></pre></div></li>
+</ol>
+</li>
+</ol>
+      
+      <div class="related">
+
+<h3>Similar articles:</h3>
+<ul>
+	
+	<li><a href="/docker-disk-devourer/">Docker: Disk Devourer</a></li>
+	
+</ul>
+</div>
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p>&copy; <a href="https://github.com/keeler">Keeler Russell</a> 2019</p>
+    
+      <p>Powered by <a href="https://gohugo.io/">Hugo</a> &amp; <a href="https://github.com/ribice/kiss">Kiss</a>.</p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+

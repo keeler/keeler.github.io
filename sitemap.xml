@@ -3,17 +3,42 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://keeler.github.io/tags/d3/</loc>
-    <lastmod>2021-01-01T21:53:33+00:00</lastmod>
+    <loc>https://keeler.github.io/tags/buildkit/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://keeler.github.io/tags/docker/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://keeler.github.io/docker-build-profiling/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://keeler.github.io/tags/jaeger/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://keeler.github.io/</loc>
-    <lastmod>2021-01-01T21:53:33+00:00</lastmod>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://keeler.github.io/tags/opentracing/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://keeler.github.io/tags/</loc>
+    <lastmod>2021-01-06T07:32:21+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://keeler.github.io/tags/d3/</loc>
     <lastmod>2021-01-01T21:53:33+00:00</lastmod>
   </url>
   
@@ -74,11 +99,6 @@
   
   <url>
     <loc>https://keeler.github.io/tags/cronjob/</loc>
-    <lastmod>2020-11-29T17:53:33+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://keeler.github.io/tags/docker/</loc>
     <lastmod>2020-11-29T17:53:33+00:00</lastmod>
   </url>
   
