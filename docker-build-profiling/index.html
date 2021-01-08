@@ -147,7 +147,7 @@ Seeing the source code may help you follow along: <a href="https://github.com/ke
 <p><strong>Why is this a docker image at all?</strong></p>
 <p>I could just install the buildkit daemon locally, right?
 Well, no, not really; I didn&rsquo;t like running it as root and the &ldquo;rootless&rdquo; setup didn&rsquo;t work for me.
-Furthermore, as of Jan 2021 <code>buildkitd</code> is only available on Linux (as of Jan 2021) and I felt a more cross-platform solution would be more appropriate.
+Furthermore, <code>buildkitd</code> is only available on Linux (as of Jan 2021) and I felt a more cross-platform solution would be more appropriate.
 So instead I built this docker-based solution so I can run it without root privileges.
 Though I haven&rsquo;t tried it, it probably also doesn&rsquo;t require Linux, either.</p>
 <p><strong>OK, so how does the image work?</strong></p>
