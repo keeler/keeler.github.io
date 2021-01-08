@@ -136,7 +136,7 @@ docker cp . build-profiler:/workspace/demo
 </code></pre></div><p><strong>Step 4: Get Traces From Jaeger</strong></p>
 <p>You can use either the web UI for a visual representation, or a REST request for programmatic access.</p>
 <ol>
-<li>For the web UI, go to <code>http://localhost:16686</code> in your browser. Choose &ldquo;buildctl&rdquo; in the <code>Service</code> dropdown, click the <code>Find Traces</code> button, and choose the most recent one.</li>
+<li>For the web UI, go to <a href="http://localhost:16686">http://localhost:16686</a> in your browser. Choose &ldquo;buildctl&rdquo; in the <code>Service</code> dropdown, click the <code>Find Traces</code> button, and choose the most recent one.</li>
 <li>For REST, you can use the <a href="https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal">REST API</a>. It works but is undocumented as of Jan 2021 and subject to change.
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">curl -s http://localhost:16686/api/traces<span style="color:#b84">\?</span>service<span style="color:#b84">\=</span>buildctl | jq <span style="color:#b84">&#39;.&#39;</span>
 </code></pre></div></li>
