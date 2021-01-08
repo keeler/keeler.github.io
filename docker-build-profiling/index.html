@@ -197,11 +197,11 @@ mkdir flask_app
 <span style="color:#008080">COMMIT</span><span style="font-weight:bold">=</span>9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f
 <span style="color:#008080">BASE_URL</span><span style="font-weight:bold">=</span><span style="color:#008080">$GITHUB</span>/docker/labs/<span style="color:#008080">$COMMIT</span>/beginner/flask-app
 
-curl <span style="color:#008080">$BASE_URL</span>/requirements.txt --output requirements.txt
-curl <span style="color:#008080">$BASE_URL</span>/app.py --output app.py
-curl <span style="color:#008080">$BASE_URL</span>/Dockerfile --output Dockerfile
+curl -L <span style="color:#008080">$BASE_URL</span>/requirements.txt --output requirements.txt
+curl -L <span style="color:#008080">$BASE_URL</span>/app.py --output app.py
+curl -L <span style="color:#008080">$BASE_URL</span>/Dockerfile --output Dockerfile
 mkdir -p templates
-curl <span style="color:#008080">$BASE_URL</span>/index.html --output templates/index.html</code></pre></td></tr></table>
+curl -L <span style="color:#008080">$BASE_URL</span>/index.html --output templates/index.html</code></pre></td></tr></table>
 </div>
 </div> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
