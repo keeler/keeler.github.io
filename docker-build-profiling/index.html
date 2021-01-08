@@ -121,8 +121,9 @@ The name is arbitrary and just for convenience, but that port is not arbitrary.
 It&rsquo;s the port allowing access to Jaeger outside the container so you can get that sweet, sweet profiling information. 😮</p>
 <p><em>At this point, you can leave the container running and repeat the following steps as needed while you&rsquo;re experimenting with tweaks to your Dockerfile.</em></p>
 <p><strong>Step 2: Copy Your Files Into the Container</strong></p>
-<p>For the sake of a concrete example, you can run the the lines in this footnote<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> in a terminal to download <a href="https://github.com/docker/labs/tree/9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f/beginner/flask-app">this Flask app</a> from the Docker tutorial. Otherwise, just use your own project.</p>
-<p>Make a directory in the running <code>build-profiler</code> container copy your Dockerfile and other associated sources, assets, etc. into the container.</p>
+<p>For the sake of a concrete example, you can run the the lines in this footnote<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> in a terminal to download <a href="https://github.com/docker/labs/tree/9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f/beginner/flask-app">this Flask app</a> from the canonical Docker examples.
+Otherwise, just use your own project.</p>
+<p>Make a directory in the running <code>build-profiler</code> container and copy your Dockerfile and other associated sources, assets, etc. into the container.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#999">cd</span> ~/flask_app
 docker <span style="color:#999">exec</span> -it build-profiler mkdir demo
 docker cp . build-profiler:/workspace/demo
@@ -137,7 +138,7 @@ docker cp . build-profiler:/workspace/demo
 <p>You can use either the web UI for a visual representation, or a REST request for programmatic access.</p>
 <ol>
 <li>For the web UI, go to <a href="http://localhost:16686">http://localhost:16686</a> in your browser. Choose &ldquo;buildctl&rdquo; in the <code>Service</code> dropdown, click the <code>Find Traces</code> button, and choose the most recent one.</li>
-<li>For REST, you can use the <a href="https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal">REST API</a>. It works but is undocumented as of Jan 2021 and subject to change.
+<li>You can also use the <a href="https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal">REST API</a>. It works but is undocumented as of Jan 2021 and subject to change.
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">curl -s http://localhost:16686/api/traces<span style="color:#b84">\?</span>service<span style="color:#b84">\=</span>buildctl | jq <span style="color:#b84">&#39;.&#39;</span>
 </code></pre></div></li>
 </ol>
